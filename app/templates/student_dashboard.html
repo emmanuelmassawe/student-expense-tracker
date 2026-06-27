@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Student Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="/static/css/style.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary">
+      <div class="container">
+        <span class="navbar-brand">Student Dashboard</span>
+        <div>
+          <a href="/expense-form-page" class="btn btn-light btn-sm"
+            >Add Expense</a
+          >
+          <button onclick="logout()" class="btn btn-outline-light btn-sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="row align-items-end mb-4">
+        <div class="col-md-4">
+          <label class="form-label">Month</label>
+          <input id="month" class="form-control" value="2026-06" />
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-primary mt-3" onclick="loadDashboard()">
+            Load Dashboard
+          </button>
+        </div>
+      </div>
+
+      <div id="message" class="mb-3"></div>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="card shadow-sm stat-card">
+            <div class="card-body">
+              <h6>Total Spent</h6>
+              <h4 id="total_spent">-</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm stat-card">
+            <div class="card-body">
+              <h6>Savings</h6>
+              <h4 id="savings">-</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm stat-card">
+            <div class="card-body">
+              <h6>Remaining Balance</h6>
+              <h4 id="remaining_balance">-</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm stat-card">
+            <div class="card-body">
+              <h6>Cluster</h6>
+              <h4 id="cluster_description">-</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-4">
+        <div class="card-body">
+          <h5>Category Breakdown</h5>
+
+          <table class="table">
+            <tbody>
+              <tr>
+                <th>Food</th>
+                <td id="food_expense">-</td>
+              </tr>
+              <tr>
+                <th>Rent</th>
+                <td id="rent">-</td>
+              </tr>
+              <tr>
+                <th>Transport</th>
+                <td id="transport">-</td>
+              </tr>
+              <tr>
+                <th>Education</th>
+                <td id="education">-</td>
+              </tr>
+              <tr>
+                <th>Entertainment</th>
+                <td id="entertainment">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mt-4">
+      <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5>Expense Categories</h5>
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5>Spending Distribution</h5>
+            <canvas id="distributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function logout() {
+        localStorage.clear();
+        window.location.href = "/login-page";
+      }
+
+      function formatMoney(value) {
+        return Number(value).toLocaleString() + " TSh";
+      }
+      let categoryChart = null;
+      let distributionChart = null;
+
+      function renderStudentCharts(summary) {
+        const categories = [
+          "Food",
+          "Rent",
+          "Transport",
+          "Education",
+          "Entertainment",
+          "Savings",
+        ];
+
+        const values = [
+          summary.food_expense,
+          summary.rent,
+          summary.transport,
+          summary.education,
+          summary.entertainment,
+          summary.savings,
+        ];
+
+        if (categoryChart) {
+          categoryChart.destroy();
+        }
+
+        if (distributionChart) {
+          distributionChart.destroy();
+        }
+
+        categoryChart = new Chart(document.getElementById("categoryChart"), {
+          type: "bar",
+          data: {
+            labels: categories,
+            datasets: [
+              {
+                label: "Amount in TSh",
+                data: values,
+                backgroundColor: [
+                  "#0d6efd",
+                  "#198754",
+                  "#ffc107",
+                  "#dc3545",
+                  "#6f42c1",
+                  "#20c997",
+                ],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          },
+        });
+
+        distributionChart = new Chart(
+          document.getElementById("distributionChart"),
+          {
+            type: "doughnut",
+            data: {
+              labels: categories,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    "#0d6efd",
+                    "#198754",
+                    "#ffc107",
+                    "#dc3545",
+                    "#6f42c1",
+                    "#20c997",
+                  ],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+            },
+          },
+        );
+      }
+
+      async function loadDashboard() {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          window.location.href = "/login-page";
+          return;
+        }
+
+        const month = document.getElementById("month").value;
+        const message = document.getElementById("message");
+        message.innerText = "";
+
+        const summaryResponse = await fetch(
+          `/dashboard/student/summary?month=${month}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const summary = await summaryResponse.json();
+
+        if (!summaryResponse.ok) {
+          message.className = "alert alert-warning";
+          message.innerText = summary.detail || "Summary not found";
+          return;
+        }
+
+        document.getElementById("total_spent").innerText = formatMoney(
+          summary.total_spent,
+        );
+        document.getElementById("savings").innerText = formatMoney(
+          summary.savings,
+        );
+        document.getElementById("remaining_balance").innerText = formatMoney(
+          summary.remaining_balance,
+        );
+        document.getElementById("food_expense").innerText = formatMoney(
+          summary.food_expense,
+        );
+        document.getElementById("rent").innerText = formatMoney(summary.rent);
+        document.getElementById("transport").innerText = formatMoney(
+          summary.transport,
+        );
+        document.getElementById("education").innerText = formatMoney(
+          summary.education,
+        );
+        document.getElementById("entertainment").innerText = formatMoney(
+          summary.entertainment,
+        );
+        renderStudentCharts(summary);
+
+        const clusterResponse = await fetch(
+          `/dashboard/student/cluster?month=${month}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const cluster = await clusterResponse.json();
+
+        if (clusterResponse.ok) {
+          document.getElementById("cluster_description").innerText =
+            cluster.cluster_description;
+        } else {
+          document.getElementById("cluster_description").innerText =
+            "Not clustered yet";
+        }
+      }
+    </script>
+  </body>
+</html>

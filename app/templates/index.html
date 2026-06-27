@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Expense Tracking System</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #667085;
+        --line: #d9e0ea;
+        --panel: #ffffff;
+        --soft: #f4f7fb;
+        --blue: #2563eb;
+        --green: #16a34a;
+        --amber: #d97706;
+        --red: #dc2626;
+        --teal: #0891b2;
+        --violet: #7c3aed;
+        --shadow: 0 18px 45px rgba(23, 32, 51, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--ink);
+        background: var(--soft);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(10px);
+      }
+
+      .nav {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 7px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .button.primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+      }
+
+      .button.dark {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: #fff;
+      }
+
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 34px 22px 54px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+        gap: 28px;
+        align-items: stretch;
+        min-height: 520px;
+      }
+
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 22px 0;
+      }
+
+      .eyebrow {
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #e8f0ff;
+        color: #1746b2;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      h1 {
+        margin: 18px 0 14px;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 620px;
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .system-points {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .point {
+        padding: 14px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .point strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .point span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .app-preview {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        min-height: 520px;
+      }
+
+      .preview-header {
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: #fbfcff;
+      }
+
+      .window-dots {
+        display: flex;
+        gap: 7px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--line);
+      }
+
+      .dot.red {
+        background: var(--red);
+      }
+
+      .dot.amber {
+        background: var(--amber);
+      }
+
+      .dot.green {
+        background: var(--green);
+      }
+
+      .preview-body {
+        padding: 18px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .stat {
+        min-height: 104px;
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .stat label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 12px;
+        font-size: 22px;
+      }
+
+      .stat small {
+        display: block;
+        margin-top: 8px;
+        color: var(--green);
+        font-weight: 700;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.65fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .panel-title h2,
+      .panel-title h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #edf7f1;
+        color: #116329;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .bar-chart {
+        display: grid;
+        gap: 13px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 104px 1fr 82px;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .track {
+        height: 12px;
+        border-radius: 999px;
+        background: #eef2f7;
+        overflow: hidden;
+      }
+
+      .fill {
+        height: 100%;
+        border-radius: 999px;
+      }
+
+      .blue {
+        background: var(--blue);
+      }
+
+      .green {
+        background: var(--green);
+      }
+
+      .amber {
+        background: var(--amber);
+      }
+
+      .teal {
+        background: var(--teal);
+      }
+
+      .violet {
+        background: var(--violet);
+      }
+
+      .donut-wrap {
+        display: grid;
+        place-items: center;
+        min-height: 235px;
+      }
+
+      .donut {
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        background: conic-gradient(
+          var(--blue) 0 28%,
+          var(--green) 28% 48%,
+          var(--amber) 48% 62%,
+          var(--teal) 62% 74%,
+          var(--violet) 74% 86%,
+          var(--red) 86% 100%
+        );
+        position: relative;
+      }
+
+      .donut::after {
+        content: "K-Means";
+        position: absolute;
+        inset: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #fff;
+        font-weight: 800;
+      }
+
+      .legend {
+        display: grid;
+        gap: 9px;
+        margin-top: 12px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .legend-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex: 0 0 auto;
+      }
+
+      .section {
+        margin-top: 42px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 28px;
+      }
+
+      .section-head p {
+        max-width: 620px;
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+
+      .flow-step {
+        min-height: 150px;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .step-number {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: #e8f0ff;
+        color: var(--blue);
+        font-weight: 800;
+        margin-bottom: 14px;
+      }
+
+      .flow-step strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .flow-step span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        margin-top: 44px;
+        padding: 22px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .dashboard-grid,
+        .split {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .stats,
+        .system-points {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .flow {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .nav {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav-links {
+          width: 100%;
+        }
+
+        .button {
+          flex: 1 1 auto;
+        }
+
+        .stats,
+        .system-points,
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .bar-row {
+          grid-template-columns: 82px 1fr;
+        }
+
+        .bar-row strong {
+          grid-column: 2;
+        }
+
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav">
+        <a class="brand" href="/">
+          <span class="brand-mark">SE</span>
+          <span>Student Expense Tracker</span>
+        </a>
+        <div class="nav-links">
+          <a class="button" href="/register-page">Register</a>
+          <a class="button primary" href="/login-page">Login</a>
+          <a class="button dark" href="/docs">API Docs</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow"
+            >Real-time data plus monthly K-Means clustering</span
+          >
+          <h1>Student Expense Tracking System</h1>
+          <p class="lead">
+            Track how students use their 600,000 TSh boom allowance, summarize
+            monthly spending, and group students by behavior using K-Means
+            clustering.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="/login-page">Open Dashboard</a>
+            <a class="button" href="/register-page">Create Account</a>
+            <a class="button" href="/expense-form-page">Add Expense</a>
+          </div>
+
+          <div class="system-points">
+            <div class="point">
+              <strong>Real-Time</strong>
+              <span
+                >Students submit expenses and the system saves them
+                immediately.</span
+              >
+            </div>
+            <div class="point">
+              <strong>Batch Jobs</strong>
+              <span
+                >Monthly aggregation prepares clean data for machine
+                learning.</span
+              >
+            </div>
+            <div class="point">
+              <strong>ML Insights</strong>
+              <span
+                >K-Means groups students into spending behavior clusters.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="app-preview" aria-label="Dashboard preview">
+          <div class="preview-header">
+            <div class="window-dots">
+              <span class="dot red"></span>
+              <span class="dot amber"></span>
+              <span class="dot green"></span>
+            </div>
+            <strong>June 2026 Dashboard</strong>
+          </div>
+
+          <div class="preview-body">
+            <div class="stats">
+              <div class="stat">
+                <label>Total Spent</label>
+                <strong>380,000</strong>
+                <small>TSh tracked</small>
+              </div>
+              <div class="stat">
+                <label>Savings</label>
+                <strong>120,000</strong>
+                <small>Kept aside</small>
+              </div>
+              <div class="stat">
+                <label>Students</label>
+                <strong>3</strong>
+                <small>Clustered</small>
+              </div>
+              <div class="stat">
+                <label>Cluster</label>
+                <strong>High saver</strong>
+                <small>K-Means result</small>
+              </div>
+            </div>
+
+            <div class="dashboard-grid">
+              <div class="panel">
+                <div class="panel-title">
+                  <h2>Category Spending</h2>
+                  <span class="pill">Live summary</span>
+                </div>
+                <div class="bar-chart">
+                  <div class="bar-row">
+                    <span>Food</span>
+                    <div class="track">
+                      <div class="fill blue" style="width: 75%"></div>
+                    </div>
+                    <strong>150k</strong>
+                  </div>
+                  <div class="bar-row">
+                    <span>Rent</span>
+                    <div class="track">
+                      <div class="fill green" style="width: 50%"></div>
+                    </div>
+                    <strong>100k</strong>
+                  </div>
+                  <div class="bar-row">
+                    <span>Transport</span>
+                    <div class="track">
+                      <div class="fill amber" style="width: 20%"></div>
+                    </div>
+                    <strong>40k</strong>
+                  </div>
+                  <div class="bar-row">
+                    <span>Education</span>
+                    <div class="track">
+                      <div class="fill teal" style="width: 35%"></div>
+                    </div>
+                    <strong>70k</strong>
+                  </div>
+                  <div class="bar-row">
+                    <span>Entertainment</span>
+                    <div class="track">
+                      <div class="fill violet" style="width: 10%"></div>
+                    </div>
+                    <strong>20k</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-title">
+                  <h3>Distribution</h3>
+                </div>
+                <div class="donut-wrap">
+                  <div>
+                    <div class="donut"></div>
+                    <div class="legend">
+                      <div class="legend-item">
+                        <span class="legend-name"
+                          ><span class="swatch blue"></span>Food</span
+                        ><strong>28%</strong>
+                      </div>
+                      <div class="legend-item">
+                        <span class="legend-name"
+                          ><span class="swatch green"></span>Rent</span
+                        ><strong>20%</strong>
+                      </div>
+                      <div class="legend-item">
+                        <span class="legend-name"
+                          ><span class="swatch amber"></span>Savings</span
+                        ><strong>26%</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>System Flow</h2>
+          <p>
+            The home page shows how the live web system and the batch machine
+            learning process work together.
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step">
+            <div class="step-number">1</div>
+            <strong>Student Login</strong>
+            <span>JWT authentication protects student and admin actions.</span>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">2</div>
+            <strong>Expense Entry</strong>
+            <span
+              >Food, rent, transport, education, entertainment, and savings are
+              recorded.</span
+            >
+          </div>
+          <div class="flow-step">
+            <div class="step-number">3</div>
+            <strong>PostgreSQL</strong>
+            <span>Real-time entries are stored in the database.</span>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">4</div>
+            <strong>Batch Processing</strong>
+            <span>Monthly summaries are generated from existing records.</span>
+          </div>
+          <div class="flow-step">
+            <div class="step-number">5</div>
+            <strong>K-Means</strong>
+            <span>Students are grouped by spending behavior.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section split">
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Student Features</h2>
+          </div>
+          <table>
+            <tbody>
+              <tr>
+                <th>Feature</th>
+                <th>Status</th>
+              </tr>
+              <tr>
+                <td>Register and login</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>Add monthly or daily expenses</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>View summary dashboard</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>View cluster behavior</td>
+                <td>Available</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <h2>Admin Features</h2>
+          </div>
+          <table>
+            <tbody>
+              <tr>
+                <th>Feature</th>
+                <th>Status</th>
+              </tr>
+              <tr>
+                <td>Run monthly aggregation</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>Run K-Means clustering</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>View all summaries</td>
+                <td>Available</td>
+              </tr>
+              <tr>
+                <td>View cluster results</td>
+                <td>Available</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Student Expense Tracking System using FastAPI, PostgreSQL, Pandas,
+        Scikit-learn, and Bootstrap-ready pages.
+      </footer>
+    </main>
+  </body>
+</html>
